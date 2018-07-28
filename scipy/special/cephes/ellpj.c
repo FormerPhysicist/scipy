@@ -77,12 +77,12 @@ extern double MACHEP;
 
 int ellpj(double u, double m, double *sn, double *cn, double *dn, double *ph)
 {
-    double ai, b, phi, t, twon, dnfac, K, du, uabs;
+    double ai, b, phi, t, twon, dnfac, K, du, uabs, mu, v;
     double a[9], c[9];
-    int i,j,r;
+    int i, j, r, exitCode;
 
     /* Check for special cases */
-    if (m < 0.0 || m > 1.0 || cephes_isnan(m)) {
+    if (m < 0.0 || cephes_isnan(m)) {
         mtherr("ellpj", DOMAIN);
         *sn = NPY_NAN;
         *cn = NPY_NAN;
@@ -90,6 +90,21 @@ int ellpj(double u, double m, double *sn, double *cn, double *dn, double *ph)
         *dn = NPY_NAN;
         return (-1);
     }
+
+    if (m > 1.0) {
+        mu = 1.0 / m;
+        v = sqrt(m) * u;
+        exitCode = ellpj(v, mu, sn, dn, cn, ph);
+        if (exitCode < 0) {
+            return exitCode;
+        }
+        else {
+            *sn = sqrt(mu) * (*sn);
+            *ph = atan(*sn / *cn);
+            return 0;
+        }
+    }
+
     if (m < 1.0e-9) {
         t = sin(u);
         b = cos(u);
