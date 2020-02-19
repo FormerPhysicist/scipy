@@ -682,14 +682,6 @@
             "chyp1f1_wrap": "ddD->D"
         }
     },
-    "hyp2f1": {
-        "cephes.h": {
-            "hyp2f1": "dddd->d"
-        },
-        "specfun_wrappers.h": {
-            "chyp2f1_wrap": "dddD->D"
-        }
-    },
     "hyperu": {
         "_hypergeometric.pxd": {
             "hyperu": "ddd->d"

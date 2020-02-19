@@ -642,6 +642,8 @@ from ._logsumexp import logsumexp, softmax
 from . import orthogonal
 from .orthogonal import *
 
+from .hyp2f1 import hyp2f1
+
 from .spfun_stats import multigammaln
 from ._ellip_harm import (
     ellip_harm,
@@ -670,7 +672,7 @@ __all__ = _ufuncs.__all__ + _basic.__all__ + orthogonal.__all__ + [
     'spherical_jn',
     'spherical_yn',
     'spherical_in',
-    'spherical_kn',
+    'spherical_kn'
 ]
 
 from scipy._lib._testutils import PytestTester
