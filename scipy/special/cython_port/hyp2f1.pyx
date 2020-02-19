@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 cpdef hyp2f1(double a, double b, double c, z):
   if isinstance(z, float):
     return abk_hyp2f1_real(a,b,c,z)

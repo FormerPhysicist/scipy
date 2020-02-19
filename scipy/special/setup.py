@@ -138,7 +138,7 @@ def configuration(parent_package='',top_path=None):
                          sources=['_comb.c'])
     
     # adding the cython port files
-    config.add_extension('hyp2f1',sources=[join('cython_port', '*.c')])
+    config.add_extension('cython_port',sources=[join('cython_port', '*.c')])
 
     # testing for _round.h
     config.add_extension('_test_round',

@@ -642,7 +642,7 @@ from ._logsumexp import logsumexp, softmax
 from . import orthogonal
 from .orthogonal import *
 
-from .hyp2f1 import hyp2f1
+from .cython_port import hyp2f1
 
 from .spfun_stats import multigammaln
 from ._ellip_harm import (
