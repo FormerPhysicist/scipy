@@ -1,6 +1,6 @@
 cimport libc.math
 
-cdef double round(double x):
+cdef double roundy(double x):
   cdef double i, f
 
   # The largest integer still smaller than x.

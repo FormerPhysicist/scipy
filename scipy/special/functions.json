@@ -580,14 +580,6 @@
             "cfresnl_wrap": "D*DD->*i"
         }
     },
-    "gamma": {
-        "_loggamma.pxd": {
-            "cgamma": "D->D"
-        },
-        "cephes.h": {
-            "Gamma": "d->d"
-        }
-    },
     "gammainc": {
         "cephes.h": {
             "igam": "dd->d"

@@ -1,6 +1,6 @@
 from libc.math cimport fabs, pow, exp, floor, sin
 import numpy as np
-from polyeval cimport polyeval
+from .polyeval cimport polyeval
 
 include "constants.pyx"
 
@@ -56,7 +56,7 @@ cdef double stirf(double x):
 
   return SQTPI * y * w
 
-cpdef double gamma(double x):
+cdef double gamma(double x):
   cdef double p, q, z, i
   cdef int sgngam
   i = floor(x)

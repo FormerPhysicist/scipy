@@ -1,0 +1,1 @@
+cdef double gamma(double x)
