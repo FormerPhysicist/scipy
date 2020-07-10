@@ -32,6 +32,7 @@ extern double ellik(double phi, double m);
 extern double ellpe(double x);
 
 extern int ellpj(double u, double m, double *sn, double *cn, double *dn, double *ph);
+extern int ellpj_new(double u, double m, double *sn, double *cn, double *dn, double *ph);
 extern double ellpk(double x);
 extern double exp10(double x);
 extern double exp1m(double x);

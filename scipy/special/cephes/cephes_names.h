@@ -19,6 +19,7 @@
 #define ellik cephes_ellik
 #define ellpe cephes_ellpe
 #define ellpj cephes_ellpj
+#define ellpj_new cephes_ellpj_new
 #define ellpk cephes_ellpk
 #define exp10 cephes_exp10
 #define exp1m cephes_exp1m

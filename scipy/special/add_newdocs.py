@@ -1961,6 +1961,11 @@ add_newdoc("ellipeinc",
            Graphs, and Mathematical Tables. New York: Dover, 1972.
     """)
 
+add_newdoc("ellipjnew",
+    """
+    A test function.
+    """)
+
 add_newdoc("ellipj",
     """
     ellipj(u, m)

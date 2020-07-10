@@ -338,6 +338,11 @@
             "ellpj": "dd*dddd->*i"
         }
     },
+    "ellipjnew": {
+        "cephes.h": {
+            "ellpj_new": "dd*dddd->*i"
+        }
+    },
     "ellipkinc": {
         "cephes.h": {
             "ellik": "dd->d"
