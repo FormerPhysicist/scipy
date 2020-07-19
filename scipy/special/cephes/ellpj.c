@@ -70,7 +70,7 @@ extern double MACHEP;
 
 int ellpj_new(double u, double m, double *sn, double *cn, double *dn, double *ph)
 {
-    double ai, b, phi, t, twon, dnfac, du, K, uabs;
+    double ai, b, phi, t, twon, dnfac, du, K, uabs, sndel, cndel, dndel, phdel, snk, cnk;
     double a[9], c[9];
     int i, j, r;
 
@@ -104,33 +104,46 @@ int ellpj_new(double u, double m, double *sn, double *cn, double *dn, double *ph
         uabs = fabs(u);
         j = (int)(uabs/K);
         du = uabs-((double)j)*K;
-        r = j%4;
-
-        /* When phi is in the I and III quadrants */
-        if(r == 0 || r == 2) {
-            t = cosh(du);
-            phi = 0.25*(1.0-m)*(sinh(du)-du/t);
-            /* add Gudermannian term */
-            phi += 2.0*atan(exp(du)) - NPY_PI_2;
-        }
-        /* When phi is in the II and IV quadrants */
-        else{
-            du = K-du;
-            t = cosh(du);
-            phi = 0.25*(1.0-m)*(sinh(du)-du/t);
-            /* add Gudermannian term */
-            phi += 2.0*atan(exp(du)) - NPY_PI_2;
-            phi = NPY_PI_2-phi;
-        }
-        phi += ((double)j)*NPY_PI_2;
-        if (u < 0) {
-            phi *= -1.0;
+        
+        /* If du is too close to the next quarter period, shift j by 1 and set du to 
+           a negative value (with smaller amplitude). */
+        if (du > 0.5*K)
+        {
+            j += 1;
+            du = du - K;
         }
 
-        *sn = sin(phi);
-        *cn = cos(phi);
-        *dn = sqrt(1.0-m*(*sn)*(*sn));
-        *ph = phi;
+        ellpj_small_m(du, m, &sndel, &cndel, &dndel, &phdel);
+
+        r = j % 4;
+        if (r == 0)
+        {
+            snk = 0.0;
+            cnk = 1.0;
+        }
+        else if (r == 1)
+        {
+            snk = 1.0;
+            cnk = 0.0;
+        }
+        else if (r == 2)
+        {
+            snk = 0.0;
+            cnk = -1.0;
+        }
+        else 
+        {
+            snk = -1.0;
+            cnk = 0.0;
+        }
+
+        /* Compute the final values using 16.17.1-3. */
+        t = 1.0 - m*snk*snk*sndel*sndel;
+
+        *sn = (snk/t)*cndel*dndel + (cnk*sqrt(1.0 - m*snk*snk)/t)*sndel;
+        *cn = (cnk/t)*cndel - (snk*sqrt(1.0 - m*snk*snk)/t)*sndel*dndel;
+        *dn = (sqrt(1.0 - m*snk*snk)/t)*dndel;
+        *ph = j*NPY_PI_2 + phdel;
 
         return (0);
     }
@@ -179,6 +192,38 @@ int ellpj_new(double u, double m, double *sn, double *cn, double *dn, double *ph
     }
     *ph = phi;
     return (0);
+}
+
+void ellpj_small_m(double du, double m, double *sn, double *cn, double *dn, double *ph)
+{
+    double duabs, c, s, t, temp, g;
+    duabs = fabs(du);
+
+    c = cosh(duabs);
+    s = sinh(duabs);
+    t = tanh(duabs);
+    temp = s/c - duabs/(c*c);
+
+    /* Gudermannian term */
+    g = 2.0*atan(exp(duabs)) - NPY_PI_2;
+
+    /* Abramowitz and Stegun 16.15.1 */
+    *sn = t + 0.25*(1.0 - m)*temp;
+
+    /* Abramowitz and Stegun 16.15.2 */
+    *cn = 1.0/c - 0.25*(1.0 - m)*s*temp;
+
+    /* Abramowitz and Stegun 16.15.3 */
+    *dn = 1.0/c + 0.25*(1.0 - m)*(s*t + duabs*t/(c));
+
+    /* Abramowitz and Stegun 16.15.4 */
+    *ph = g + 0.25*(1.0 - m)*(s - duabs/c);
+
+    if (du < 0.0)
+    {
+        *sn *= -1.0;
+        *ph *= -1.0;
+    }
 }
 
 int ellpj(double u, double m, double *sn, double *cn, double *dn, double *ph)
