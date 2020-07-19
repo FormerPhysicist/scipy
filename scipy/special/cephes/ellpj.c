@@ -140,8 +140,8 @@ int ellpj_new(double u, double m, double *sn, double *cn, double *dn, double *ph
         /* Compute the final values using 16.17.1-3. */
         t = 1.0 - m*snk*snk*sndel*sndel;
 
-        *sn = (snk/t)*cndel*dndel + (cnk*sqrt(1.0 - m*snk*snk)/t)*sndel;
-        *cn = (cnk/t)*cndel - (snk*sqrt(1.0 - m*snk*snk)/t)*sndel*dndel;
+        *sn = snk*cndel/dndel + cnk*sndel/t;
+        *cn = cnk*cndel - snk*sqrt(1.0 - m)*sndel/dndel;
         *dn = (sqrt(1.0 - m*snk*snk)/t)*dndel;
         *ph = j*NPY_PI_2 + phdel;
 
@@ -228,9 +228,9 @@ void ellpj_small_m(double du, double m, double *sn, double *cn, double *dn, doub
 
 int ellpj(double u, double m, double *sn, double *cn, double *dn, double *ph)
 {
-    double ai, b, phi, t, twon, dnfac;
+    double ai, b, phi, t, twon, dnfac, du, K, uabs;
     double a[9], c[9];
-    int i;
+    int i, j, r;
 
     /* Check for special cases */
     if (m < 0.0 || m > 1.0 || cephes_isnan(m)) {
@@ -252,16 +252,53 @@ int ellpj(double u, double m, double *sn, double *cn, double *dn, double *ph)
         return (0);
     }
     if (m >= 0.9999999999) {
-        ai = 0.25 * (1.0 - m);
-        b = cosh(u);
-        t = tanh(u);
-        phi = 1.0 / b;
-        twon = b * sinh(u);
-        *sn = t + ai * (twon - u) / (b * b);
-        *ph = 2.0 * atan(exp(u)) - NPY_PI_2 + ai * (twon - u) / b;
-        ai *= t * phi;
-        *cn = phi - ai * (twon - u);
-        *dn = phi + ai * (twon + u);
+        // ai = 0.25 * (1.0 - m);
+        // b = cosh(u);
+        // t = tanh(u);
+        // phi = 1.0 / b;
+        // twon = b * sinh(u);
+        // *sn = t + ai * (twon - u) / (b * b);
+        // *ph = 2.0 * atan(exp(u)) - NPY_PI_2 + ai * (twon - u) / b;
+        // ai *= t * phi;
+        // *cn = phi - ai * (twon - u);
+        // *dn = phi + ai * (twon + u);
+
+        //****************************************************
+        /* Evaluate the complete elliptic integral using the
+           1-m<<1 approximation in ellpk.c */
+        K = ellpk(1.0-m);
+        uabs = fabs(u);
+        j = (int)(uabs/K);
+        du = uabs-((double)j)*K;
+        r = j%4;
+
+        /* When phi is in the I and III quadrants */
+        if(r == 0 || r == 2) {
+            t = cosh(du);
+            phi = 0.25*(1.0-m)*(sinh(du)-du/t);
+            /* add Gudermannian term */
+            phi += 2.0*atan(exp(du)) - NPY_PI_2;
+        }
+        /* When phi is in the II and IV quadrants */
+        else{
+            du = K-du;
+            t = cosh(du);
+            phi = 0.25*(1.0-m)*(sinh(du)-du/t);
+            /* add Gudermannian term */
+            phi += 2.0*atan(exp(du)) - NPY_PI_2;
+            phi = NPY_PI_2-phi;
+        }
+        phi += ((double)j)*NPY_PI_2;
+        if (u < 0) {
+            phi *= -1.0;
+        }
+
+        *sn = sin(phi);
+        *cn = cos(phi);
+        *dn = sqrt(1.0-m*(*sn)*(*sn));
+        *ph = phi;
+        //*************************************************
+
         return (0);
     }
 
